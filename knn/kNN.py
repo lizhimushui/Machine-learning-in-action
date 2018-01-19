@@ -80,7 +80,7 @@ def file2matrix(filename):
         # 整行数据分割成1个元素列表
         return_mat[index, :] = list_from_line[0:3]  # 0:3表示0，1，2
 
-        # # 如果需要将文字转化为数字
+        # # 如果需要将文字转化为数字,后面画图会需要
         # if (list_from_line[-1] == 'largeDoses'):
         #     list_from_line[-1] = 3
         # elif (list_from_line[-1] == 'smallDoses'):
@@ -94,26 +94,8 @@ def file2matrix(filename):
     return return_mat, class_label_vector
 
 
-'''
-
-# 将文本转换为可处理数据的函数的运行测试记录
-dating_data_mat,dating_labels = file2matrix('datingTestSet2.txt')
-import matplotlib
-import matplotlib.pyplot as plt
-fig = plt.figure()  
-ax = fig.add_subplot(111)  
-ax.scatter(dating_data_mat[:,0],dating_data_mat[:,1],\
-15.0*array(int(dating_labels)),15.0*array(int(dating_labels)))
-plt.show()  
-plt.xlabel('每年获取的飞行常客里程数')
-plt.ylabel('玩视频游戏所耗时间百分比') 
-ax.set_title('约会数据散点图')  
-
-'''
-
-
 # 归一化特征值
-def autoNorm(data_set):
+def auto_norm(data_set):
     min_vals = data_set.min(0)  # 0表示求列的最小值
     max_vals = data_set.max(0)  # 0表示求列的最大值
     ranges = max_vals - min_vals
@@ -129,6 +111,86 @@ def autoNorm(data_set):
 
 # 运行测试记录
 norm_mat,ranges,min_vals = autoNorm(dating_data_mat)
+
+'''
+
+'''
+
+# 修改版的2d版将文本转换为可处理数据的函数的运行测试记录
+dating_data_mat, dating_labels = file2matrix('datingTestSet.txt')
+norm_mat, ranges, min_vals = auto_norm(dating_data_mat)
+import matplotlib
+import matplotlib.pyplot as plt
+
+fig = plt.figure()
+# 2d图
+ax = fig.add_subplot(111)
+
+import numpy as np  # 这条很很重要,否则np.where要报错
+
+label = array(dating_labels)
+idx_1 = np.where(label == 1)
+idx_2 = np.where(label == 2)
+idx_3 = np.where(label == 3)
+# 2d图
+p1 = plt.scatter(norm_mat[idx_1, 0], norm_mat[idx_1, 1],marker='o', color='m', label='不感兴趣')
+p2 = plt.scatter(norm_mat[idx_2, 0], norm_mat[idx_2, 1],marker='o', color='c', label='可能感兴趣')
+p3 = plt.scatter(norm_mat[idx_3, 0], norm_mat[idx_3, 1],marker='o', color='r', label='很感兴趣')
+plt.legend(loc='best')
+ax.set_xlabel('每年获取的飞行常客里程数')
+ax.set_ylabel('玩视频游戏所耗时间百分比')
+ax.set_title('相亲网站二维散点图')
+plt.show()
+
+'''
+
+'''
+
+# 修改版的3d版将文本转换为可处理数据的函数的运行测试记录
+dating_data_mat, dating_labels = file2matrix('datingTestSet.txt')
+norm_mat, ranges, min_vals = auto_norm(dating_data_mat)
+import matplotlib
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # 没有这句下面的3d会报错
+
+fig = plt.figure()
+# 3d图
+ax = fig.add_subplot(111, projection='3d')
+
+import numpy as np  # 这条很很重要,否则np.where要报错
+
+label = array(dating_labels)
+idx_1 = np.where(label == 1)
+idx_2 = np.where(label == 2)
+idx_3 = np.where(label == 3)
+# 3d图
+p1 = ax.scatter(norm_mat[idx_1, 0], norm_mat[idx_1, 1], norm_mat[idx_1, 2], marker='o', color='m', label='不感兴趣')
+p2 = ax.scatter(norm_mat[idx_2, 0], norm_mat[idx_2, 1], norm_mat[idx_2, 2], marker='o', color='c', label='可能感兴趣')
+p3 = ax.scatter(norm_mat[idx_3, 0], norm_mat[idx_3, 1], norm_mat[idx_3, 2], marker='o', color='r', label='很感兴趣')
+plt.legend(loc='best')
+ax.set_xlabel('每年获取的飞行常客里程数')
+ax.set_ylabel('玩视频游戏所耗时间百分比')
+# 3维图的图例
+ax.set_zlabel('每周消费的冰激凌公升数')
+ax.set_title('相亲网站三维散点图')
+plt.show()
+
+'''
+
+'''
+
+# 原书中将文本转换为可处理数据的函数的运行测试记录
+dating_data_mat,dating_labels = file2matrix('datingTestSet.txt')
+import matplotlib
+import matplotlib.pyplot as plt
+fig = plt.figure()  
+ax = fig.add_subplot(111)  
+ax.scatter(dating_data_mat[:,0],dating_data_mat[:,1],\
+15.0*array(dating_labels),15.0*array(dating_labels))
+plt.show()  
+plt.xlabel('每年获取的飞行常客里程数')
+plt.ylabel('玩视频游戏所耗时间百分比') 
+ax.set_title('约会数据散点图')  
 
 '''
 
@@ -168,21 +230,21 @@ def classify_person():
     # # 结果输出列表
     # result_list = ['didntLike', 'in small doses', 'in large doses']
     # 键入用户数据
-    percent_tats = float(input("Input percentage of time spent playing video games:"))
     ffmiles = float(input("Input frequent flier miles earned per year:"))
+    percent_tats = float(input("Input percentage of time spent playing video games:"))
     ice_cream = float(input("Input liters of ice cream consumed per year:"))
     # 从文本中读取数据
     dating_data_mat, dating_labels = file2matrix('datingTestSet.txt')
     # 极差标准化
-    norm_mat, ranges, min_vals = autoNorm(dating_data_mat)
+    norm_mat, ranges, min_vals = auto_norm(dating_data_mat)
     # 拼成数组用作分类器的输入
     in_arr = array([ffmiles, percent_tats, ice_cream])
     # 将标准化后的数据输入分类器做判断
     classifier_result = classify0((in_arr - min_vals) / ranges, norm_mat, \
                                   dating_labels, 3)
-    print("You will probably like this person: %s " % classifier_result )
+    print("You will probably like this person: %s " % classifier_result)
 
-
+classify_person()
 '''
 
 # 约会网站实际预测测试记录
